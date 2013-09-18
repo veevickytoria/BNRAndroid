@@ -29,5 +29,4 @@ proguard/
 *.iws
 .idea/
 
-#Gradle
-.gradle/
+.DS_Store
