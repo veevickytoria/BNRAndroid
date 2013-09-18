@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 public class QuizActivity extends Activity {
     private static final String KEY_INDEX = "index";
+    private static final String KEY_CHEATED = "didCheat";
 
     private Button mTrueButton;
     private Button mFalseButton;
@@ -29,7 +30,7 @@ public class QuizActivity extends Activity {
 
     private int mCurrentIndex = 0;
 
-    private boolean mIsCheater;
+    private boolean[] mDidCheat = new boolean[]{false, false, false, false, false};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,6 @@ public class QuizActivity extends Activity {
             @Override
             public void onClick(View v) {
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
-                mIsCheater = false;
                 updateQuestion();
             }
         });
@@ -75,6 +75,7 @@ public class QuizActivity extends Activity {
 
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            mDidCheat = savedInstanceState.getBooleanArray(KEY_CHEATED);
         }
 
         updateQuestion();
@@ -84,6 +85,7 @@ public class QuizActivity extends Activity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        savedInstanceState.putBooleanArray(KEY_CHEATED, mDidCheat);
     }
 
 
@@ -100,7 +102,7 @@ public class QuizActivity extends Activity {
             return;
         }
 
-        mIsCheater = data.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false);
+        mDidCheat[mCurrentIndex] = data.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false);
     }
 
     private void updateQuestion() {
@@ -111,9 +113,9 @@ public class QuizActivity extends Activity {
     private void checkAnswer(boolean userPressedTrue) {
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isTrueQuestion();
 
-        int messageResId = 0;
+        int messageResId;
 
-        if (mIsCheater){
+        if (mDidCheat[mCurrentIndex]){
             messageResId = R.string.judgement_toast;
         } else {
             if (userPressedTrue == answerIsTrue) {
